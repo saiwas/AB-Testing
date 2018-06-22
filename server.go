@@ -3,13 +3,17 @@ package main
 import (
 	"net/http"
 
-	"github.com/labstack/echo"
+	"ab-testing/processors"
 )
 
 func main() {
-	e := echo.New()
-	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "AB Testing Server Runing")
-	})
-	e.Logger.Fatal(e.Start(":8080"))
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", processors.IndexHandler)
+
+	server := &http.Server{
+		Addr:    "localhost:8080",
+		Handler: mux,
+	}
+
+	server.ListenAndServe()
 }

@@ -1,19 +1,19 @@
-package main
+// package main
 
-import (
-	"net/http"
+// import (
+// 	"net/http"
 
-	"ab-testing/processors"
-)
+// 	"ab-testing/processors"
+// )
 
-func main() {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", processors.IndexHandler)
+// func main() {
+// 	mux := http.NewServeMux()
+// 	mux.HandleFunc("/", processors.IndexHandler)
 
-	server := &http.Server{
-		Addr:    "localhost:8080",
-		Handler: mux,
-	}
+// 	server := &http.Server{
+// 		Addr:    "localhost:8080",
+// 		Handler: mux,
+// 	}
 
-	server.ListenAndServe()
-}
+// 	server.ListenAndServe()
+// }

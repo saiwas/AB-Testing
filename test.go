@@ -4,7 +4,6 @@ import (
 	"ab-testing/lib"
 	"fmt"
 	"math/rand"
-	"sync"
 	"time"
 )
 
@@ -26,25 +25,27 @@ func main() {
 
 	start := time.Now()
 
+	chanVersion := make(chan string, 10)
+	receiveCount := 0
 	buckets := lib.CreateBucket("Test", "test-api-key", config)
 
-	var wg sync.WaitGroup
-	var mutex = &sync.Mutex{}
-
-	for i := 0; i < count; i++ {
-		wg.Add(1)
-		go func() {
+	go func() {
+		for i := 0; i < count; i++ {
 			ID := RandStringRunes(16)
 			test := lib.GetVersion(buckets, ID)
-			mutex.Lock()
-			result[test] += 1
-			mutex.Unlock()
-			wg.Done()
-		}()
+			// sent msg function
+			chanVersion <- test
+		}
+	}()
+
+	// After change to ListenAndServe, We can remove this
+	for receiveCount != count {
+		version := <-chanVersion
+		result[version] += 1
+		receiveCount += 1
 	}
-
-	wg.Wait()
-
+	close(chanVersion)
+	// end
 	end := time.Now()
 	elapsed := end.Sub(start)
 	fmt.Printf("The results: %v \n", result)

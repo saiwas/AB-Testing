@@ -4,6 +4,7 @@ import (
 	"ab-testing/lib"
 	"fmt"
 	"math/rand"
+	"sync"
 	"time"
 )
 
@@ -27,26 +28,27 @@ func main() {
 
 	buckets := lib.CreateBucket("Test", "test-api-key", config)
 
-	// var wg sync.WaitGroup
+	var wg sync.WaitGroup
+	var mutex = &sync.Mutex{}
 
 	for i := 0; i < count; i++ {
-		// wg.Add(1)
-		asyncRequestSplit(buckets, result)
+		wg.Add(1)
+		go func() {
+			ID := RandStringRunes(16)
+			test := lib.GetVersion(buckets, ID)
+			mutex.Lock()
+			result[test] += 1
+			mutex.Unlock()
+			wg.Done()
+		}()
 	}
 
-	// wg.Wait()
+	wg.Wait()
 
 	end := time.Now()
 	elapsed := end.Sub(start)
 	fmt.Printf("The results: %v \n", result)
 	fmt.Printf("Time spend : %v \n", elapsed)
-}
-
-func asyncRequestSplit(buckets []lib.Bucket, result map[string]int) {
-	ID := RandStringRunes(16)
-	test := lib.GetVersion(buckets, ID)
-	result[test] += 1
-	// wg.Done()
 }
 
 func init() {

@@ -8,6 +8,9 @@ import (
 
 func main() {
 	mux := http.NewServeMux()
+	files := http.FileServer(http.Dir("assets"))
+	mux.Handle("/assets/", http.StripPrefix("/assets/", files))
+
 	mux.HandleFunc("/", processors.IndexHandler)
 
 	server := &http.Server{
